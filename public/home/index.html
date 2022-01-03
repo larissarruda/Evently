@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+    />
+
+    <link
+      href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <title>Evently</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/modal.css" />
+    <link rel="icon" type="image/png" href="../favicon.png" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">Evently</div>
+      <div class="content">
+        <input type="radio" class="page" name="slider" id="eventos" checked />
+        <input type="radio" class="page" name="slider" id="notif" />
+        <input type="radio" class="page" name="slider" id="logout" />
+        <div class="list">
+          
+          <label for="eventos" class="eventos">
+            <span class="icon"><i class="bx bx-party"></i></span>
+            <span class="title">Eventos</span>
+          </label>
+          <label for="notif" class="notif">
+            <span class="icon"><i id="notification-alert" class="bx bx-bell position-relative">
+            </i> </span>
+            <span class="title">Notificação</span>
+        </label>
+          <label for="logout" class="logout">
+            <span class="icon"><i class="bx bx-log-out-circle"></i></span>
+            <span class="title">Sair</span>
+          </label>
+          <div class="slider"></div>
+        </div>
+        <div class="text-content">
+      
+          
+        <div class="text eventos">
+          <h1 class="titleB">Meus Eventos</h1>
+          <button type="button" id="cadastrarEvento" class="btn-green">
+            <i class="bx bx-plus"></i> Adicionar
+          </button>
+          <main>
+            <table id="tabelaEventos" class="records">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Descrição</th>
+                  <th>Início</th>
+                  <th>Fim</th>
+                  <th>Convidados</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <div class="modal" id="modal">
+              <div class="modal-content">
+                <header class="modal-header">
+                  <h2>Novo Evento</h2>
+                  <span class="modal-close" id="modalClose">&#10006;</span>
+                </header>
+                <form id="form" class="modal-form">
+                  <input
+                    type="text"
+                    id="titulo"
+                    data-index="new"
+                    class="modal-field"
+                    placeholder="Título do Evento"
+                    required
+                  />
+                  <input
+                    type="text"
+                    id="descricao"
+                    class="modal-field"
+                    placeholder="Descrição"
+                    required
+                  />
+                  <input
+                    type="datetime-local"
+                    id="dataInicio"
+                    class="modal-field"
+                    placeholder=""
+                    required
+                  />
+                  <input
+                    type="datetime-local"
+                    id="dataFim"
+                    class="modal-field"
+                    placeholder=""
+                    required
+                  />
+                
+                      <input
+                        type="text"
+                        id="convidados"
+                        class="modal-field"
+                        placeholder="LuizFelipe, AnaLuiza"
+                        aria-label="Username"
+                      />
+                </form>
+                <footer class="modal-footer">
+                  <button id="salvar" class="btn-green">Salvar</button>
+                  <button id="cancelar" class="btn-red">Cancelar</button>
+                </footer>
+              </div>
+            </div>
+          </main>
+        </div>
+        <div class="text notif">
+          <div class="titleB">Notificações</div>
+          <p></p>
+        </div>
+      </div>
+    </div>
+<!--     <script src="db.js"></script> -->
+    <script src="novo.js"></script>
+    
+  </body>
+</html>

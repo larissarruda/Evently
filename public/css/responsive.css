@@ -1,0 +1,41 @@
+@media only screen and (max-width: 980px) {
+  .title {
+    display: none;
+  }
+  .content .slider {
+    width: 75px;
+  }
+  body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .container {
+    max-width: 1000px;
+    min-height: 750px;
+    width: 100%;
+  }
+
+  .list {
+    max-width: 78px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    top: 100%;
+    transition: all 1s ease;
+  }
+  .modal.active {
+    top: 0;
+  }
+  .modal-content {
+    margin: 0;
+    width: 100%;
+    position: fixed;
+  }
+  .modal-field {
+    width: 100%;
+  }
+}
