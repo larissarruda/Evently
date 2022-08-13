@@ -1,20 +1,22 @@
-import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-import { User, Event, Notification } from "./model/models.js";
-import { hash, compare } from "bcrypt";
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+import { User, Event, Notification } from './model/models.js';
+import { hash, compare } from 'bcrypt';
+
 dotenv.config();
+
 const app = express();
 const port = 4000;
 
-mongoose.connect(process.env.DB_TOKEN, () => {
-  console.log("Conectado ao Mongo");
+mongoose.connect(process.env.MONGO_URI, () => {
+  console.log('Conectado ao Mongo');
 });
 
 app.use(express.json());
 
-app.use(express.static("public"));
+app.use(express.static('public'));
 
 app.listen(port, () => {
   console.log(`Rodando na porta: ${port}`);
@@ -23,8 +25,8 @@ app.listen(port, () => {
 /* Verificação da token  */
 
 const verificarToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader?.split(" ")[1];
+  const authHeader = req.headers['authorization'];
+  const token = authHeader?.split(' ')[1];
   if (!token) {
     return res.sendStatus(401);
   }
@@ -38,7 +40,7 @@ const verificarToken = (req, res, next) => {
 };
 
 /* Registro do usuário */
-app.post("/register", async (req, res) => {
+app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
     const sameName = await User.findOne({
@@ -46,8 +48,8 @@ app.post("/register", async (req, res) => {
     });
     if (sameName) {
       return res.json({
-        status: "error",
-        error: "Nome de usuário já utilizado",
+        status: 'error',
+        error: 'Nome de usuário já utilizado',
       });
     }
     const hashedPassword = await hash(password, 10);
@@ -62,66 +64,68 @@ app.post("/register", async (req, res) => {
     console.log(err);
     return res
       .json({
-        status: "error",
-        error: "Erro interno no servidor",
+        status: 'error',
+        error: 'Erro interno no servidor',
       })
       .status(500);
   }
 });
 
 /* Login do usuário */
-app.post("/login", async (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username });
   if (!user) {
     return res.json({
-      status: "error",
-      error: "Usuário não existe",
+      status: 'error',
+      error: 'Usuário não existe',
     });
   }
   try {
     if (await compare(password, user.password)) {
-      const tokenAcesso = jwt.sign(JSON.stringify(user), process.env.ACCESS_TOKEN);
+      const tokenAcesso = jwt.sign(
+        JSON.stringify(user),
+        process.env.ACCESS_TOKEN,
+      );
       return res.json({
         tokenAcesso,
       });
     } else {
       return res.json({
-        status: "error",
-        error: "Senha inválida",
+        status: 'error',
+        error: 'Senha inválida',
       });
     }
   } catch (err) {
     console.log(err);
     return res
       .json({
-        status: "error",
-        error: "Erro interno no servidor",
+        status: 'error',
+        error: 'Erro interno no servidor',
       })
       .status(500);
   }
 });
 /* RETORNA ID DO USUÁRIO */
-app.get("/getidbyusername/:username", verificarToken, async (req, res) => {
+app.get('/getidbyusername/:username', verificarToken, async (req, res) => {
   try {
-  
     const user = await User.findOne({ username: req.params.username });
     return res.json({ id: user._id }).status(200);
   } catch (err) {
     console.log(err);
     return res
       .json({
-        status: "error",
-        error: "Usuário não encontrado",
+        status: 'error',
+        error: 'Usuário não encontrado',
       })
       .status(404);
   }
 });
-app.get("/getusernamebyid/:id", verificarToken, async (req, res) => {
+app.get('/getusernamebyid/:id', verificarToken, async (req, res) => {
   try {
-    console.log(req.params.id)
+    console.log(req.params.id);
     const user = await User.findOne({ _id: req.params.id });
-    console.log(user)
+    console.log(user);
     if (user) {
       res.json({ username: user.username }).status(200);
     }
@@ -129,8 +133,8 @@ app.get("/getusernamebyid/:id", verificarToken, async (req, res) => {
     console.log(err);
     return res
       .json({
-        status: "error",
-        error: "Usuário não encontrado",
+        status: 'error',
+        error: 'Usuário não encontrado',
       })
       .status(404);
   }
@@ -138,42 +142,45 @@ app.get("/getusernamebyid/:id", verificarToken, async (req, res) => {
 
 /* CRUD EVENTOS */
 
-app.get("/events", verificarToken, async (req, res) => {
+app.get('/events', verificarToken, async (req, res) => {
   try {
     const events = await Event.find({ author: req.user._id }).exec();
     if (events.length > 0) {
       return res.json(events);
     } else {
       return res.json({
-        status: "error",
-        error: "Usuário não tem eventos",
+        status: 'error',
+        error: 'Usuário não tem eventos',
       });
     }
   } catch (err) {
     console.log(err);
     return res
       .json({
-        status: "error",
-        error: "Erro interno no servidor",
+        status: 'error',
+        error: 'Erro interno no servidor',
       })
       .status(500);
   }
 });
 
 // Rota para criação de eventos
-app.post("/event", verificarToken, async (req, res) => {
+app.post('/event', verificarToken, async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.user._id });
     if (await Event.findOne({ author: req.user._id, title: req.body.title })) {
       return res.json({
-        status: "error",
-        error: "Evento com mesmo título já existe",
+        status: 'error',
+        error: 'Evento com mesmo título já existe',
       });
     }
 
     const event = new Event(req.body);
     event.author = user._id;
-    await User.updateOne({ _id: user._id }, { $push: { events: { eventId: event._id } } });
+    await User.updateOne(
+      { _id: user._id },
+      { $push: { events: { eventId: event._id } } },
+    );
     await event.save();
     await user.save();
     return res.json(event).status(201);
@@ -181,20 +188,20 @@ app.post("/event", verificarToken, async (req, res) => {
     console.log(err);
     return res
       .json({
-        status: "error",
-        error: "Erro interno no servidor",
+        status: 'error',
+        error: 'Erro interno no servidor',
       })
       .status(500);
   }
 });
-app.patch("/event/:id", verificarToken, async (req, res) => {
+app.patch('/event/:id', verificarToken, async (req, res) => {
   const event = await Event.findOne({ _id: req.params.id });
 
   if (event) {
     if (req.body.title ? req.body.title === event.title : false) {
       return res.json({
-        status: "error",
-        error: "Evento com mesmo título já existe",
+        status: 'error',
+        error: 'Evento com mesmo título já existe',
       });
     }
     await Event.updateOne({ _id: req.params.id }, { $set: req.body });
@@ -204,7 +211,7 @@ app.patch("/event/:id", verificarToken, async (req, res) => {
     return res.json(event);
   }
 });
-app.delete("/event/:id", verificarToken, async (req, res) => {
+app.delete('/event/:id', verificarToken, async (req, res) => {
   const event = await Event.findOne({ _id: req.params.id });
   if (event) {
     const user = await User.findOne({ _id: req.user._id });
@@ -216,36 +223,36 @@ app.delete("/event/:id", verificarToken, async (req, res) => {
     } else {
       return res
         .json({
-          status: "error",
-          error: "Não autorizado",
+          status: 'error',
+          error: 'Não autorizado',
         })
         .status(403);
     }
   } else {
     return res.json({
-      status: "error",
-      error: "Evento não encontrado",
+      status: 'error',
+      error: 'Evento não encontrado',
     });
   }
 });
 
-app.get("/event/:id", verificarToken, async (req, res) => {
+app.get('/event/:id', verificarToken, async (req, res) => {
   try {
     const event = await Event.findOne({ _id: req.params.id });
     if (event) {
       return res.json(event);
     } else {
       return res.json({
-        status: "error",
-        error: "Evento não encontrado",
+        status: 'error',
+        error: 'Evento não encontrado',
       });
     }
   } catch (err) {
     console.log(err);
     return res
       .json({
-        status: "error",
-        error: "Erro interno no servidor",
+        status: 'error',
+        error: 'Erro interno no servidor',
       })
       .status(500);
   }
@@ -253,17 +260,17 @@ app.get("/event/:id", verificarToken, async (req, res) => {
 
 /* Notificações */
 
-app.patch("/notification/:id", verificarToken, async (req, res) => {
+app.patch('/notification/:id', verificarToken, async (req, res) => {
   try {
     const notification = await Notification.findOne({ _id: req.params.id });
     if (notification) {
-      if (typeof notification.accepted != "boolean") {
+      if (typeof notification.accepted != 'boolean') {
         return res.sendStatus(400);
       }
       if (notification.accepted === true) {
-        notification.accepted = "aceito";
+        notification.accepted = 'aceito';
       } else {
-        notification.accepted = "recusado";
+        notification.accepted = 'recusado';
       }
       notification.save();
       res.sendStatus(200);
@@ -274,8 +281,8 @@ app.patch("/notification/:id", verificarToken, async (req, res) => {
     console.log(err);
     return res
       .json({
-        status: "error",
-        error: "Erro interno no servidor",
+        status: 'error',
+        error: 'Erro interno no servidor',
       })
       .status(500);
   }
