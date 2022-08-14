@@ -22,8 +22,9 @@ export async function createEvent(req, res) {
         error: "Evento com mesmo título já existe",
       });
     const event = new Event({ ...req.body, author: req.user._id, invites: [] });
-
-    event.invites = await Promise.all(await req.body.invites.map(invite => inviteUser(invite, event._id)));
+      if (req.body.invites) {
+        event.invites = await Promise.all(await req.body.invites.map(invite => inviteUser(invite, event._id)));
+        } 
     await event.save();
     return res.status(201).json(event);
   } catch (err) {
@@ -46,20 +47,29 @@ export async function getEventsByUserId(req, res) {
 /** Recebe id de um evento e dados que serão alterados  */
 export async function updateEvent(req, res) {
   try {
-    const event = await Event.findOneAndUpdate({ _id: req.params.id }, ...req.body);
+    const event = await Event.findOne({ _id: req.params.id });
+    if (!event) return res.status(404).json({ status: "error", error: "Evento não encontrado" });
+    if (req.body.invites) {
+      console.log(req.body.invites)
+      event.invites = await Promise.all(await req.body.invites.map(invite => inviteUser(invite, event._id)));
+      } 
     await event.save();
-    return res.status(201).json(event);
+    await Event.findOneAndUpdate({ _id: req.params.id }, { $set: req.body });
+    await event.save();
+    const newEvent = await Event.findOne({ _id: req.params.id });
+    return res.status(201).json(newEvent);
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ status: "error", error: "Erro interno no servidor" });
   }
 }
 /** Recebe id de um evento e o deleta  */
 export async function deleteEvent(req, res) {
   try {
-    const deleteEvent = await Event.findOneAndDelete({ _id: req.params.id }, ...req.body);
-    await deleteEvent.save();
-    return res.status(204);
+    await Event.findOneAndDelete({ _id: req.params.id });
+    return res.sendStatus(204);
   } catch (err) {
+    console.log(err)
     return res.status(500).json({ status: "error", error: "Erro interno no servidor" });
   }
 }
